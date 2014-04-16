@@ -16,11 +16,13 @@
 __author__ = "anatoly techtonik <techtonik@gmail.com>"
 __version__ = "1.14dev"
 
+try:
+  from cStringIO import StringIO
+except ImportError:  # py3
+  from io import StringIO
 import copy
 import logging
 import re
-from cStringIO import StringIO
-import urllib2
 
 import os
 import os.path

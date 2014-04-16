@@ -140,7 +140,7 @@ class TestPatchFiles(TestPatchlib):
       os.chdir(tmpdir)
       if verbose:
         cmd = '%s %s "%s"' % (sys.executable, patch_tool, patch_file)
-        print "\n"+cmd
+        print("\n"+cmd)
       else:
         cmd = '%s %s -q "%s"' % (sys.executable, patch_tool, patch_file)
       ret = os.system(cmd)
