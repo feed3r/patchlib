@@ -9,6 +9,7 @@ setup(name = 'patchlib',
       maintainer_email = 'fromani@gmail.com',
       url = 'http://github.com/mojaves/patchlib',
       py_modules = [ 'patchlib' ],
+      scripts=[ 'scripts/patch' ],
       classifiers = [
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: MIT License',

@@ -1,0 +1,89 @@
+#!/usr/bin/env python
+""" Patch utility to apply unified diffs
+
+    Brute-force line-by-line non-recursive parsing 
+
+    Copyright (c) 2008-2014 anatoly techtonik
+    Available under the terms of MIT license
+
+    Project home: http://code.google.com/p/python-patch/
+
+
+    $Id: patch.py 245 2014-03-03 07:57:12Z techtonik $
+    $HeadURL: http://python-patch.googlecode.com/svn/trunk/patch.py $
+"""
+
+__author__ = "anatoly techtonik <techtonik@gmail.com>"
+__version__ = "1.14dev"
+
+from optparse import OptionParser
+import os.path
+import sys
+
+import copy
+import logging
+import re
+from cStringIO import StringIO
+import urllib2
+
+import os
+
+import patchlib
+
+
+def _main()
+    opt = OptionParser(usage="1. %prog [options] unified.diff\n"
+                      "       2. %prog [options] -- < unified.diff",
+                      version="python-patch %s" % __version__)
+    opt.add_option("-q", "--quiet", action="store_const", dest="verbosity",
+                                  const=0, help="print only warnings and errors", default=1)
+    opt.add_option("-v", "--verbose", action="store_const", dest="verbosity",
+                                  const=2, help="be verbose")
+    opt.add_option("--debug", action="store_true", dest="debugmode", help="debug mode")
+    opt.add_option("--diffstat", action="store_true", dest="diffstat",
+                                           help="print diffstat and exit")
+    opt.add_option("-d", "--directory", metavar='DIR',
+                                           help="specify root directory for applying patch")
+    opt.add_option("-p", "--strip", type="int", metavar='N', default=0,
+                                           help="strip N path components from filenames")
+    opt.add_option("--revert", action="store_true",
+                                           help="apply patch in reverse order (unpatch)")
+    (options, args) = opt.parse_args()
+
+    if not args and sys.argv[-1:] != ['--']:
+        opt.print_version()
+        opt.print_help()
+        sys.exit()
+    readstdin = (sys.argv[-1:] == ['--'] and not args)
+
+    patchlib.debugmode = options.debugmode
+
+    verbosity_levels = {0:logging.WARNING, 1:logging.INFO, 2:logging.DEBUG}
+    loglevel = verbosity_levels[options.verbosity]
+    logformat = "%(message)s"
+    if debugmode:
+        loglevel = logging.DEBUG
+        logformat = "%(levelname)8s %(message)s"
+    patchlib.logger.setLevel(loglevel)
+    loghandler = logging.StreamHandler()
+    loghandler.setFormatter(logging.Formatter(logformat))
+    patchlib.logger.addHandler(loghandler)
+
+
+    if readstdin:
+        patch = pachlib.PatchSet(sys.stdin)
+    else:
+        patchfile = args[0]
+        if not os.path.exists(patchfile) or not os.path.isfile(patchfile):
+            sys.exit("patch file does not exist - %s" % patchfile)
+        patch = patchlib.fromfile(patchfile)
+
+    if options.diffstat:
+        print patch.diffstat()
+    elif options.revert:
+        patch.revert(options.strip, root=options.directory) or sys.exit(-1)
+    else:
+        patch.apply(options.strip, root=options.directory) or sys.exit(-1)
+
+if __name__ == "__main__":
+    _main()
