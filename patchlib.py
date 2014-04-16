@@ -22,8 +22,8 @@ import re
 from cStringIO import StringIO
 import urllib2
 
-from os.path import exists, isfile, abspath
 import os
+import os.path
 import posixpath
 import shutil
 
@@ -727,9 +727,9 @@ class PatchSet(object):
 
   def findfile(self, old, new):
     """ return name of file to be patched or None """
-    if exists(old):
+    if os.path.exists(old):
       return old
-    elif exists(new):
+    elif os.path.exists(new):
       return new
     else:
       # [w] Google Code generates broken patches with its online editor
@@ -738,9 +738,9 @@ class PatchSet(object):
         old, new = old[2:], new[2:]
         debug("   %s" % old)
         debug("   %s" % new)
-        if exists(old):
+        if os.path.exists(old):
           return old
-        elif exists(new):
+        elif os.path.exists(new):
           return new
       return None
 
@@ -784,7 +784,7 @@ class PatchSet(object):
           warning("source/target file does not exist:\n  --- %s\n  +++ %s" % (old, new))
           errors += 1
           continue
-      if not isfile(filename):
+      if not os.path.isfile(filename):
         warning("not a file - %s" % filename)
         errors += 1
         continue
@@ -862,10 +862,9 @@ class PatchSet(object):
           errors += 1
       if canpatch:
         backupname = filename+".orig"
-        if exists(backupname):
+        if os.path.exists(backupname):
           warning("can't backup original file to %s - aborting" % backupname)
         else:
-          import shutil
           shutil.move(filename, backupname)
           if self.write_hunks(backupname, filename, p.hunks):
             info("successfully patched %d/%d:\t %s" % (i+1, total, filename))
@@ -911,16 +910,16 @@ class PatchSet(object):
 
     :returns: True, False or None
     """
-    filename = abspath(filename)
+    filename = os.path.abspath(filename)
     for p in self.items:
-      if filename == abspath(p.source):
+      if filename == os.path.abspath(p.source):
         return self._match_file_hunks(filename, p.hunks)
     return None
 
 
   def _match_file_hunks(self, filepath, hunks):
     matched = True
-    fp = open(abspath(filepath))
+    fp = open(os.path.abspath(filepath))
 
     class NoMatch(Exception):
       pass
