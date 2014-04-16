@@ -106,9 +106,8 @@ def fromfile(filename):
   """
   patchset = PatchSet()
   debug("reading %s" % filename)
-  fp = open(filename, "rb")
-  res = patchset.parse(fp)
-  fp.close()
+  with open(filename, "rb") as fp:
+    res = patchset.parse(fp)
   if res == True:
     return patchset
   return False
@@ -1018,15 +1017,10 @@ class PatchSet(object):
 
 
   def write_hunks(self, srcname, tgtname, hunks):
-    src = open(srcname, "rb")
-    tgt = open(tgtname, "wb")
+    with open(srcname, "rb") as src, open(tgtname, "wb") as tgt:
+      debug("processing target file %s" % tgtname)
+      tgt.writelines(self.patch_stream(src, hunks))
 
-    debug("processing target file %s" % tgtname)
-
-    tgt.writelines(self.patch_stream(src, hunks))
-
-    tgt.close()
-    src.close()
     # [ ] TODO: add test for permission copy
     shutil.copymode(srcname, tgtname)
     return True
