@@ -714,7 +714,6 @@ class PatchSet(object):
         # make sure every entry gets at least one + or -
         iwidth = 1 if 0 < iratio < 1 else int(iratio)
         dwidth = 1 if 0 < dratio < 1 else int(dratio)
-        #print iratio, dratio, iwidth, dwidth, histwidth
         hist = "+"*int(iwidth) + "-"*int(dwidth)
       # -- /calculating +- histogram --
       output += (format % (names[i], insert[i] + delete[i], hist))
@@ -805,7 +804,6 @@ class PatchSet(object):
         elif lineno+1 == hunk.startsrc:
           hunkfind = [x[1:].rstrip("\r\n") for x in hunk.text if x[0] in " -"]
           hunkreplace = [x[1:].rstrip("\r\n") for x in hunk.text if x[0] in " +"]
-          #pprint(hunkreplace)
           hunklineno = 0
 
           # todo \ No newline at end of file
@@ -1026,16 +1024,17 @@ class PatchSet(object):
     return True
 
 
-  def dump(self):
+  def dump(self, out):
     for p in self.items:
       for headline in p.header:
-        print headline.rstrip('\n')
-      print '--- ' + p.source
-      print '+++ ' + p.target
+        out.write(headline)
+      out.write('--- %s\n' % p.source)
+      out.write('+++ %s\n' % p.target)
       for h in p.hunks:
-        print '@@ -%s,%s +%s,%s @@' % (h.startsrc, h.linessrc, h.starttgt, h.linestgt)
+        out.write('@@ -%s,%s +%s,%s @@\n' % (
+            h.startsrc, h.linessrc, h.starttgt, h.linestgt))
         for line in h.text:
-          print line.rstrip('\n')
+          out.write(line)
 
 
 # todo: document and test line ends handling logic - patch.py detects proper line-endings
