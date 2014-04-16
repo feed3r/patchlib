@@ -19,8 +19,7 @@ __version__ = "1.14dev"
 import copy
 import logging
 import re
-# cStringIO doesn't support unicode in 2.5
-from StringIO import StringIO
+from cStringIO import StringIO
 import urllib2
 
 from os.path import exists, isfile, abspath
@@ -41,19 +40,8 @@ debug = logger.debug
 info = logger.info
 warning = logger.warning
 
-class NullHandler(logging.Handler):
-  """ Copied from Python 2.7 to avoid getting
-      `No handlers could be found for logger "patch"`
-      http://bugs.python.org/issue16539
-  """
-  def handle(self, record):
-    pass
-  def emit(self, record):
-    pass
-  def createLock(self):
-    self.lock = None
+logger.addHandler(logging.NullHandler())
 
-logger.addHandler(NullHandler())
 
 #------------------------------------------------
 # Constants for Patch/PatchSet types
