@@ -124,17 +124,6 @@ def fromstring(s):
   return False
 
 
-def fromurl(url):
-  """ Parse patch from an URL, return False
-      if an error occured. Note that this also
-      can throw urlopen() exceptions.
-  """
-  ps = PatchSet( urllib2.urlopen(url) )
-  if ps.errors == 0:
-    return ps
-  return False
-
-
 # --- Utility functions ---
 # [ ] reuse more universal pathsplit()
 def pathstrip(path, n):
