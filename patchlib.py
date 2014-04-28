@@ -148,6 +148,9 @@ class Hunk(object):
     self.desc=''
     self.text=[]
 
+  def __eq__(self, other):
+    return self.text == other.text
+
 #  def apply(self, estream):
 #    """ write hunk data into enumerable stream
 #        return strings one by one until hunk is
@@ -176,6 +179,8 @@ class Patch(object):
     for h in self.hunks:
       yield h
 
+  def __eq__(self, other):
+      return self.hunks == other.hunks
 
 class PatchSet(object):
   """ PatchSet is a patch parser and container.
@@ -206,6 +211,10 @@ class PatchSet(object):
   def __iter__(self):
     for i in self.items:
       yield i
+  
+  def __eq__(self, other):
+    return self.items == other.items
+
 
   def parse(self, stream):
     """ parse unified diff
@@ -300,7 +309,7 @@ class PatchSet(object):
             header.append(fe.line)
             fe.next()
         if fe.is_empty:
-            if p == None:
+            if p is None:
               debug("no patch data found")  # error is shown later
               self.errors += 1
             else:
@@ -1036,9 +1045,8 @@ class PatchSet(object):
         out.write('@@ -%s,%s +%s,%s @@\n' % (
             h.startsrc, h.linessrc, h.starttgt, h.linestgt))
         for line in h.text:
-          out.write(line)
-
-
+          out.write(line) 
+ 
 # todo: document and test line ends handling logic - patch.py detects proper line-endings
 #       for inserted hunks and issues a warning if patched file has incosistent line ends
 

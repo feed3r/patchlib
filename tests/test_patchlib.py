@@ -31,16 +31,19 @@ On Windows it may be more convenient instead of `coverage` call
 """
 
 import os
+import os.path
 import sys
 import re
 import shutil
 import unittest
 import copy
+import StringIO
 from os import listdir
 from os.path import abspath, dirname, exists, join, isdir, isfile
 from tempfile import mkdtemp
 
 import patchlib
+from patchlib import PatchSet
 
 
 class TestPatchlib(unittest.TestCase):
@@ -374,8 +377,8 @@ class TestPatchApply(TestPatchlib):
           p.source = 'nasty/prefix/' + p.source
           p.target = 'nasty/prefix/' + p.target
         self.assert_(pto.apply(strip=2, root=treeroot))
-
-class TestHelpers(TestPatchlib):
+    
+class TestHelpers(unittest.TestCase):
     # unittest setting
     longMessage = True
 
@@ -405,6 +408,30 @@ class TestHelpers(TestPatchlib):
         self.assertEqual(patchlib.pathstrip('path/to/test/name.diff', 2), 'test/name.diff')
         self.assertEqual(patchlib.pathstrip('path/name.diff', 1), 'name.diff')
         self.assertEqual(patchlib.pathstrip('path/name.diff', 0), 'path/name.diff')
+
+
+class TestPatchSetDump(TestPatchlib):
+    def test_svn_dump(self):
+        pto = patchlib.fromfile(
+            os.path.join(self.TESTS_DIR, "01uni_multi", "01uni_multi.patch"))
+        out = StringIO.StringIO()
+        pto.dump(out)
+        out.seek(0)
+        ps = patchlib.PatchSet(out)
+        self.assertFalse(ps.errors)
+        for (p1, p2) in zip(ps, pto):
+            for (h1, h2) in zip(p1, p2):
+                print h1, h2
+
+        outFile1 = open(os.path.join(self.TESTS_DIR, "dump1.txt"), 'w')
+        outFile2 = open(os.path.join(self.TESTS_DIR, "dump2.txt"), 'w')
+        ps.dump(outFile1)
+        pto.dump(outFile2)
+
+        self.assertEqual(ps, pto)
+
+
+
 
 # ----------------------------------------------------------------------------
 
